@@ -11,7 +11,7 @@ Top-down attention allows people to focus on task-relevant visual information. I
 >Accuracy change produced by attention on 25 difficulty-based task sets (left), 20 size-based task sets (middle) and 40 similarity-based task sets (right). Task-set size is transformed logarithmically with base 2. Least-squares linear regression is applied to each subset of results, from (A) to (F); predictions of the linear models are shown as broken lines.
 
 ## Repository guide
-The table below gives an overview of the repository. All `.py` files contain a docstring describing what they do.
+All `.py` files contain a docstring describing what they do.
 
 For each sub-experiment we use
 1. `experiments/define_task_sets_[type_context].py` to define a collection of task sets
