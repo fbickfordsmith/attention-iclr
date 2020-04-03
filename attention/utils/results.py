@@ -1,68 +1,62 @@
 """
-Define helper functions used for plotting.
+Define functions used for processing results.
 """
 
-import os
 import csv
+import os
 import numpy as np
 import pandas as pd
-from sklearn.metrics.pairwise import euclidean_distances, cosine_distances
-from scipy.spatial.distance import squareform
-from ..utils.category_sets import average_distance
-from ..utils.metadata import df_baseline, representations, wnid2ind
-from ..utils.paths import path_category_sets, path_results, path_training
+from ..utils.metadata import acc_baseline, acc_vgg, wnid2ind
+from ..utils.paths import path_task_sets, path_results, path_training
+from ..utils.task_sets import mean_distance
 
-def load_category_sets(type_category_set, version_wnids):
-    f = open(
-        path_category_sets/f'{type_category_set}_v{version_wnids}_wnids.csv')
-    return [row for row in csv.reader(f, delimiter=',')]
+def load_task_sets(type_task_set, version_wnids):
+    id_wnids = f'{type_task_set}_v{version_wnids}'
+    with open(path_task_sets/f'{id_wnids}_wnids.csv') as f:
+        return [row for row in csv.reader(f, delimiter=',')]
 
-def category_set_size(type_category_set, version_wnids):
-    category_sets = load_category_sets(type_category_set, version_wnids)
-    return [len(c) for c in category_sets]
+def task_set_difficulty(task_sets):
+    difficulty = []
+    for ts in task_sets:
+        inds_in = [wnid2ind[wnid] for wnid in ts]
+        difficulty.append(1 - np.mean(acc_vgg['accuracy'][inds_in]))
+    return pd.Series(difficulty, name='difficulty')
 
-def category_set_base_accuracy(type_category_set, version_wnids):
-    category_sets = load_category_sets(type_category_set, version_wnids)
-    stats = []
-    for c in category_sets:
-        inds_in = [wnid2ind[w] for w in c]
+def task_set_size(task_sets):
+    return [len(ts) for ts in task_sets]
+
+def task_set_similarity(task_sets):
+    similarity = []
+    for ts in task_sets:
+        inds_in = [wnid2ind[wnid] for wnid in ts]
+        similarity.append(1 - mean_distance(inds_in))
+    return pd.Series(similarity, name='similarity')
+
+def task_set_baseline_accuracy(task_sets):
+    acc_base = []
+    for ts in task_sets:
+        inds_in = [wnid2ind[wnid] for wnid in ts]
         inds_out = np.setdiff1d(range(1000), inds_in)
-        stats.append([
-            np.mean(df_baseline['accuracy'][inds_in]),
-            np.mean(df_baseline['accuracy'][inds_out])])
-    return pd.DataFrame(stats, columns=('acc_base_in', 'acc_base_out'))
+        acc_base.append([
+            np.mean(acc_baseline['accuracy'][inds_in]),
+            np.mean(acc_baseline['accuracy'][inds_out])])
+    return pd.DataFrame(acc_base, columns=('acc_base_in', 'acc_base_out'))
 
-def category_set_distance(type_category_set, version_wnids, measure='cosine'):
-    category_sets = load_category_sets(type_category_set, version_wnids)
-    if measure == 'cosine':
-        distance = cosine_distances
-    else:
-        distance = euclidean_distances
-    stats = []
-    for c in category_sets:
-        inds_in = [wnid2ind[w] for w in c]
-        stats.append(average_distance(distance(representations[inds_in])))
-    return pd.Series(stats, name=f'{measure}_mean')
-
-def category_set_epochs(type_category_set, version_weights):
+def task_set_epochs(id_weights):
     return [
         len(pd.read_csv(path_training/filename, index_col=0))
         for filename in sorted(os.listdir(path_training))
-        if f'{type_category_set}_v{version_weights}' in filename]
+        if id_weights in filename]
 
-def category_set_summary(type_category_set, version_wnids, version_weights):
-    df0 = category_set_base_accuracy(type_category_set, version_wnids)
-    df1 = pd.read_csv(
-        path_results/f'{type_category_set}_v{version_weights}_results.csv',
-        index_col=0)
+def task_set_summary(type_task_set, version_wnids, version_weights):
+    id_weights = f'{type_task_set}_v{version_weights}'
+    task_sets = load_task_sets(type_task_set, version_wnids)
+    df0 = task_set_baseline_accuracy(task_sets)
+    df1 = pd.read_csv(path_results/f'{id_weights}_results.csv', index_col=0)
     return pd.DataFrame({
-        'size': category_set_size(type_category_set, version_wnids),
-        'similarity': 1 - category_set_distance(
-            type_category_set, version_wnids, 'cosine'),
-        'acc_base_in': df0['acc_base_in'],
-        'acc_base_out': df0['acc_base_out'],
-        'acc_trained_in': df1['acc_top1_in'],
-        'acc_trained_out': df1['acc_top1_out'],
-        'acc_change_in': df1['acc_top1_in'] - df0['acc_base_in'],
-        'acc_change_out': df1['acc_top1_out'] - df0['acc_base_out'],
-        'num_epochs': category_set_epochs(type_category_set, version_weights)})
+        'difficulty':task_set_difficulty(task_sets),
+        'size':task_set_size(task_sets),
+        'similarity':task_set_similarity(task_sets),
+        'acc_change_in':(df1['acc_top1_in']-df0['acc_base_in']),
+        'acc_change_out':(df1['acc_top1_out']-df0['acc_base_out']),
+        'num_epochs':task_set_epochs(id_weights)})

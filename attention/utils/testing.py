@@ -1,80 +1,81 @@
 """
-Define routines for finding a model's predictions and performance.
+Test a model, or compute its predictions, using either `flow_from_directory` or
+`flow_from_dataframe`.
 """
 
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from tensorflow.keras import metrics, losses
-from tensorflow.keras import backend as K
 from ..utils.metadata import wnids
 
-datagen = tf.keras.preprocessing.image.ImageDataGenerator(
-    preprocessing_function=tf.keras.applications.vgg16.preprocess_input)
+def parameters_testing():
+    datagen_testing = tf.keras.preprocessing.image.ImageDataGenerator(
+        preprocessing_function=tf.keras.applications.vgg16.preprocess_input)
+    params_generator = dict(
+        target_size=(224,224),
+        batch_size=256,
+        shuffle=False)
+    params_testing = dict(
+        use_multiprocessing=False,
+        verbose=True)
+    return datagen_testing, params_generator, params_testing
 
-params_generator = dict(
-    target_size=(224,224),
-    batch_size=256,
-    shuffle=False)
-
-params_testing = dict(
-    use_multiprocessing=False,
-    verbose=True)
-
-def predict_model(model, type_source, *args):
+def model_predict(model, type_source, *args):
+    datagen_testing, params_generator, params_testing = parameters_testing()
     if type_source == 'dir':
         path_directory = args[0]
-        generator = datagen.flow_from_directory(
+        generator = datagen_testing.flow_from_directory(
             directory=path_directory,
             class_mode=None,
             **params_generator)
     else:
         dataframe, path_data = args
-        generator = datagen.flow_from_dataframe(
+        generator = datagen_testing.flow_from_dataframe(
             dataframe=dataframe,
             directory=path_data,
             class_mode=None,
             **params_generator)
-    predictions = model.predict_generator(
-        generator=generator,
+    predictions = model.predict(
+        x=generator,
         steps=len(generator),
         **params_testing)
     return predictions, generator
 
-def evaluate_model(model, type_source, *args):
+def model_evaluate(model, type_source, *args):
+    datagen_testing, params_generator, params_testing = parameters_testing()
     if type_source == 'dir':
         path_directory = args[0]
-        generator = datagen.flow_from_directory(
+        generator = datagen_testing.flow_from_directory(
             directory=path_directory,
             class_mode='categorical',
             **params_generator)
     else:
         dataframe, path_data = args
-        generator = datagen.flow_from_dataframe(
+        generator = datagen_testing.flow_from_dataframe(
             dataframe=dataframe,
             directory=path_data,
             class_mode='categorical',
             classes=wnids,
             **params_generator)
-    scores = model.evaluate_generator(
-        generator=generator,
+    scores = model.evaluate(
+        x=generator,
         steps=len(generator),
         **params_testing)
     return scores
 
-def evaluate_predictions(predictions, labels, indices):
-    ypred = K.variable(predictions[indices])
-    ytrue = K.variable(labels[indices])
-    sess = K.get_session()
-    acc_top1 = sess.run(
-        metrics.sparse_top_k_categorical_accuracy(ytrue, ypred, k=1))
-    acc_top5 = sess.run(
-        metrics.sparse_top_k_categorical_accuracy(ytrue, ypred, k=5))
-    loss = sess.run(
-        K.mean(losses.sparse_categorical_crossentropy(ytrue, ypred)))
+def predictions_metrics(predictions, labels, indices):
+    ypred = tf.keras.backend.variable(predictions[indices])
+    ytrue = tf.keras.backend.variable(labels[indices])
+    session = tf.keras.backend.get_session()
+    acc_top1 = session.run(
+        tf.keras.metrics.sparse_top_k_categorical_accuracy(ytrue, ypred, k=1))
+    acc_top5 = session.run(
+        tf.keras.metrics.sparse_top_k_categorical_accuracy(ytrue, ypred, k=5))
+    loss = session.run(tf.keras.backend.mean(
+        tf.keras.losses.sparse_categorical_crossentropy(ytrue, ypred)))
     return loss, acc_top1, acc_top5
 
-def evaluate_classwise_accuracy(predictions, generator):
+def predictions_accuracy_classwise(predictions, generator):
     labels_predicted = np.argmax(predictions, axis=1)
     labels_true = generator.classes
     wnid2ind = generator.class_indices

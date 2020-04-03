@@ -1,28 +1,17 @@
-"""
-Take a pretrained VGG16. Add an elementwise-multiplication attention layer
-between the final convolutional layer and the first fully-connected layer. Fix
-all weights except for the attention weights.
-"""
-
-import numpy as np
 import tensorflow as tf
-from ..utils.layers import Attention
 
-def build_model(attention_layer=Attention(), train=True, attention_position=19):
-    vgg = tf.keras.applications.vgg16.VGG16()
-    input = tf.keras.layers.Input(shape=(224, 224, 3))
-    output = vgg.layers[1](input)
-    for layer in vgg.layers[2:attention_position]:
-        output = layer(output)
-    output = attention_layer(output)
-    for layer in vgg.layers[attention_position:]:
-        output = layer(output)
-    model = tf.keras.models.Model(input, output)
-    for layer in model.layers:
-        if ('attention' in layer.name) and (train == True):
-            layer.trainable = True
-        else:
-            layer.trainable = False
+def attention_network(attention_layer, position='block5_pool'):
+    """
+    Build an attention network by taking a pretrained VGG16 and inserting an
+    attention layer. Fix all weights except for the attention weights.
+    """
+    vgg = tf.keras.applications.VGG16()
+    model = tf.keras.models.Sequential()
+    for layer in vgg.layers:
+        layer.trainable = False
+        model.add(layer)
+        if layer.name == position:
+            model.add(attention_layer)
     model.compile(
         optimizer=tf.keras.optimizers.Adam(lr=3e-4),
         loss='categorical_crossentropy',
