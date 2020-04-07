@@ -6,7 +6,7 @@ import pathlib
 import sys
 
 if sys.platform == 'linux':
-    path_repo = pathlib.Path('/home/freddie/attention/')
+    path_repo = pathlib.Path('/home/freddie/attention-iclr/')
     path_imagenet = pathlib.Path('/fast-data/datasets/ILSVRC/2012/clsloc/')
     path_init_model = pathlib.Path('/home/freddie/initialised_model.h5')
 else:
