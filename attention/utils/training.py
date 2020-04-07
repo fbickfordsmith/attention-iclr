@@ -30,7 +30,20 @@ def parameters_training(split=0.1):
         workers=1)
     return datagen_training, params_generator, params_training
 
-def partition_ordered(df, split=0.1, labels_col='class'):
+def dataframe_imagenet_train():
+    gen = tf.keras.preprocessing.image.ImageDataGenerator().flow_from_directory(
+        directory=path_imagenet/'train/')
+    return pd.DataFrame({
+        'filename':gen.filenames,
+        'wnid':pd.Series(gen.filenames).str.split('/', expand=True)[0]})
+
+def dataframe_task_set(df, task_set):
+    inds_in_set = []
+    for wnid in task_set:
+        inds_in_set.extend(np.flatnonzero(df['wnid'] == wnid))
+    return df.iloc[inds_in_set]
+
+def partition_ordered(df, split=0.1, labels_col='wnid'):
     df_train, df_valid = pd.DataFrame(), pd.DataFrame()
     for wnid in wnids:
         inds = np.flatnonzero(df[labels_col]==wnid)

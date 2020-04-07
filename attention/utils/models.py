@@ -1,10 +1,10 @@
+"""
+Take a pretrained VGG16, fix its weights and insert an attention layer.
+"""
+
 import tensorflow as tf
 
 def attention_network(attention_layer, position='block5_pool'):
-    """
-    Build an attention network by taking a pretrained VGG16 and inserting an
-    attention layer. Fix all weights except for the attention weights.
-    """
     vgg = tf.keras.applications.VGG16()
     model = tf.keras.models.Sequential()
     for layer in vgg.layers:

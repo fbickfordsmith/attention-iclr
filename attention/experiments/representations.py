@@ -25,12 +25,12 @@ datagen = tf.keras.preprocessing.image.ImageDataGenerator(
 generator = datagen.flow_from_directory(directory=path_imagenet/'train/')
 df = pd.DataFrame({
     'filename':generator.filenames,
-    'class':pd.Series(generator.filenames).str.split('/', expand=True)[0]})
+    'wnid':pd.Series(generator.filenames).str.split('/', expand=True)[0]})
 mean_representations = []
 
 for i, wnid in enumerate(wnids):
     generator_wnid = datagen.flow_from_dataframe(
-        dataframe=df.loc[df['class']==wnid],
+        dataframe=df.loc[df['wnid']==wnid],
         directory=path_imagenet/'train/',
         target_size=(224,224),
         batch_size=256,

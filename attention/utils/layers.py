@@ -1,14 +1,15 @@
+"""
+Multiply each element of an input tensor by a separate attention weight.
+
+References:
+- stackoverflow.com/questions/46821845/how-to-add-a-trainable-hadamard-product-layer-in-keras
+- keras.io/layers/writing-your-own-keras-layers
+- tensorflow.org/guide/keras/custom_layers_and_models
+"""
+
 import tensorflow as tf
 
 class ElementwiseAttention(tf.keras.layers.Layer):
-    """
-    Multiply each element of an input tensor by a separate attention weight.
-
-    References:
-    - stackoverflow.com/questions/46821845/how-to-add-a-trainable-hadamard-product-layer-in-keras
-    - keras.io/layers/writing-your-own-keras-layers
-    - tensorflow.org/guide/keras/custom_layers_and_models
-    """
     def __init__(self, **kwargs):
         super(ElementwiseAttention, self).__init__(name='attention', **kwargs)
 

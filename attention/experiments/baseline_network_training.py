@@ -1,5 +1,5 @@
 """
-Train a baseline attention network on examples from all ImageNet categories.
+Train a baseline attention network on ImageNet.
 """
 
 gpu = input('GPU: ')
