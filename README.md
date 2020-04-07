@@ -11,7 +11,7 @@ Top-down attention allows people to focus on task-relevant visual information. I
 >Accuracy change produced by attention on 25 difficulty-based task sets (left), 20 size-based task sets (middle) and 40 similarity-based task sets (right). Task-set size is transformed logarithmically with base 2. Least-squares linear regression is applied to each subset of results, from (A) to (F); predictions of the linear models are shown as broken lines.
 
 ## A brief guide to reproducing our results
-Run the files in the table below, all found in `attention/experiments/`. Then run `accuracy_change_analysis.ipynb`, found in `results/`, to produce the plots and statistics presented in the paper. The code in this repository should work with TensorFlow v2.1.
+Run the files in the table below, all found in `attention/experiments/`. Then run `accuracy_change_analysis.ipynb`, found in `analysis/`, to produce the plots and statistics presented in the paper. The code in this repository should work with TensorFlow v2.1.
 
 \# | Step | File
 -|-|-
