@@ -1,5 +1,5 @@
 """
-Define functions used for processing results.
+Define functions used for analysis.
 """
 
 import csv
