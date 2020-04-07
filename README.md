@@ -1,5 +1,5 @@
 # The perceptual boost of visual attention is task-dependent in naturalistic settings
-*Published as a workshop paper at "Bridging AI and Cognitive Science" (ICLR 2020). http://arxiv.org/abs/2003.00882.*
+*Published at "Bridging AI and Cognitive Science" (ICLR 2020) and available at http://arxiv.org/abs/2003.00882.*
 
 Freddie Bickford Smith, Xiaoliang Luo, Brett D Roads, Bradley C Love\
 University College London
@@ -7,11 +7,11 @@ University College London
 ## Abstract
 Top-down attention allows people to focus on task-relevant visual information. Is the resulting perceptual boost task-dependent in naturalistic settings? We aim to answer this with a large-scale computational experiment. First, we design a collection of visual tasks, each consisting of classifying images from a chosen task set (subset of ImageNet categories). The nature of a task is determined by which categories are included in the task set. Second, on each task we train an attention-augmented neural network and then compare its accuracy to that of a baseline network. We show that the perceptual boost of attention is stronger with increasing task-set difficulty, weaker with increasing task-set size and weaker with increasing perceptual similarity within a task set.
 
->![](/results/accuracy_change_plots.png)
+>![](/analysis/accuracy_change_plots.png)
 >Accuracy change produced by attention on 25 difficulty-based task sets (left), 20 size-based task sets (middle) and 40 similarity-based task sets (right). Task-set size is transformed logarithmically with base 2. Least-squares linear regression is applied to each subset of results, from (A) to (F); predictions of the linear models are shown as broken lines.
 
 ## A brief guide to reproducing our results
-Run the files in the table below, all found in `attention/experiments/`. Then run `results/accuracy_change_analysis.ipynb` to produce the plots and statistics presented in the paper. The code in this repository should work with TensorFlow v2.1.
+Run the files in the table below, all found in `attention/experiments/`. Then run `accuracy_change_analysis.ipynb`, found in `results/`, to produce the plots and statistics presented in the paper. The code in this repository should work with TensorFlow v2.1.
 
 \# | Step | File
 -|-|-
@@ -41,4 +41,4 @@ Weights | Results | Task set | Reason for rejection
 `sim_v2_weights.npy` | `sim_v2_results.csv` | `sim_v2_wnids.csv` | Wrong `patience` value for early-stopping criterion
 
 ## Get in touch
-Contact Freddie if you have questions about the research or if you find an error in this repository. His email address is in the arXiv paper linked above.
+Contact Freddie if you find an error in this repository or if you have questions about the associated research. His email address is in the arXiv paper linked above.
