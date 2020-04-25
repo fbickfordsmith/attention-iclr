@@ -24,9 +24,9 @@ from ..utils.testing import model_predict, predictions_metrics
 
 model = attention_network(ElementwiseAttention(trainable=False))
 model.save_weights(path_init_model)
-path_cat_sets = (
+path_task_sets = (
     path_task_sets/f'{type_task_set}_v{version_wnids}_wnids.csv')
-task_sets = [row for row in csv.reader(open(path_cat_sets), delimiter=',')]
+task_sets = [row for row in csv.reader(open(path_task_sets), delimiter=',')]
 scores_in, scores_out = [], []
 
 for i in range(start, stop+1):
